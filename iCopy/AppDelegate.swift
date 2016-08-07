@@ -13,15 +13,85 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBOutlet weak var window: NSWindow!
 
+    @IBOutlet weak var menuBar: NSMenu!
 
+    var enterTextWindowController: NewTextWindowController? = nil
+    
+    //Get reference to main system status bar
+    let statusItem = NSStatusBar.systemStatusBar().statusItemWithLength(-1)
+    
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         // Insert code here to initialize your application
+        let icon = NSImage(named: "statusIcon")
+        icon?.template = true
+        
+        statusItem.image = icon
+        //statusItem.menu = menuBar
+        
+        if let statusButton = statusItem.button
+        {
+            print("This is called")
+            statusButton.target = self
+            statusButton.action = #selector(statusItemClicked)
+            
+            statusButton.sendActionOn(Int((NSEventMask.LeftMouseUpMask.rawValue | NSEventMask.RightMouseUpMask.rawValue)))
+            
+        }
     }
-
-    func applicationWillTerminate(aNotification: NSNotification) {
-        // Insert code here to tear down your application
+    
+    
+    func statusItemClicked(sender: NSStatusBarButton)
+    {
+        let event = NSApp.currentEvent!
+        //On right click, show the menu
+        
+        if (event.type == NSEventType.RightMouseUp) {
+            
+            statusItem.menu = menuBar
+            statusItem.popUpStatusItemMenu(menuBar)
+        }
+        //On left click, Dont show menu, add the defualt to the clipboard
+        else{
+            addToClipboard()
+        }
+        
+        //Prevents the pop up menu from ever popping up.
+        statusItem.menu = nil
     }
-
+    
+    //This function gets the value they entered and puts it in the clip board
+    func addToClipboard()
+    {
+        let prefs: NSUserDefaults = NSUserDefaults.standardUserDefaults()
+        let copy = prefs.stringForKey("copy")
+        
+        if let copy = copy
+        {
+        NSPasteboard.generalPasteboard().clearContents()
+        NSPasteboard.generalPasteboard().setString(copy, forType: NSStringPboardType)
+        }
+        
+    }
+    
+    
+    //This function is called to create the enterTextWindowController
+    @IBAction func newCopy(sender: NSMenuItem) {
+        
+        if enterTextWindowController == nil
+        {
+            enterTextWindowController = NewTextWindowController(windowNibName: "NewTextWindowController")
+        }
+        
+        enterTextWindowController?.showWindow(self)
+        NSApp.activateIgnoringOtherApps(true)
+    }
+    
+    
+    
+    
+    
+    
+    
     // MARK: - Core Data stack
 
     lazy var applicationDocumentsDirectory: NSURL = {
