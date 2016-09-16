@@ -17,12 +17,12 @@ class NewTextWindowController: NSWindowController, NSTextFieldDelegate {
     }
     
     //Recieve the command
-    @IBAction func textFieldChanged(sender: NSTextField) {
+    @IBAction func textFieldChanged(_ sender: NSTextField) {
         
-        let prefs: NSUserDefaults = NSUserDefaults.standardUserDefaults()
+        let prefs: UserDefaults = UserDefaults.standard
         let string = sender.stringValue
             
-        prefs.setObject(string, forKey: "copy")
+        prefs.set(string, forKey: "copy")
         prefs.synchronize()
         
         
